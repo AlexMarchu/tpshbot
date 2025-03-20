@@ -10,6 +10,8 @@ from services.github_service import get_team_commits
 
 router = Router()
 timer = 20
+
+
 async def setup_chat_action(message: Message, action: ChatAction=ChatAction.TYPING, duration: float=0.8):
     await message.bot.send_chat_action(chat_id=message.chat.id, action=action)
     await asyncio.sleep(duration)
@@ -25,16 +27,23 @@ async def send_stats(message: Message):
         else:
             timer = 3600
             REPOSITORIES = [
+                {"owner": "AlexMarchu", "name": "ACJ"},
                 {"owner": "AlexMarchu", "name": "tpshbot"}
             ]
 
             team_commits = await get_team_commits(REPOSITORIES)
             if team_commits:
                 response = "Статистика коммитов за последний час:\n"
-                for repo_name, count in team_commits.items():
-                    response += f"{repo_name}: {count} коммитов\n"
+                for repo in team_commits.keys():
+                    response += f"Команда {repo}: {team_commits[repo]["count"]} коммитов\n"
+
+                    for author, commit_message in team_commits[repo]["commits"]:
+                        response += f"{author}: {commit_message.strip()}\n"
+
+                    response += "\n"
+            
                 response += (
-                    "\nБольшой Брат одобряет вашу продуктивность.\n"
+                    "Большой Брат одобряет вашу продуктивность.\n"
                     "Продолжайте в том же духе, товарищи."
                 )
             else:
@@ -43,7 +52,8 @@ async def send_stats(message: Message):
                     "Большой Брат недоволен вашей бездеятельностью.\n"
                     "Помните: безделье — это преступление."
                 )
-
+            
+            await setup_chat_action(message)
             await message.answer(response)
 
 
@@ -67,26 +77,6 @@ async def cmd_stats(message: Message):
     seconds_left = int(timer % 60)
     response = f"\nОсталось времени до следующего доклада: {minutes_left} минут {seconds_left} секунд."
 
-    # REPOSITORIES = [
-    #     {"owner": "AlexMarchu", "name": "tpshbot"}
-    # ]
-    #
-    # team_commits = await get_team_commits(REPOSITORIES)
-    # if team_commits:
-    #     response = "Статистика коммитов за последний час:\n"
-    #     for repo_name, count in team_commits.items():
-    #         response += f"{repo_name}: {count} коммитов\n"
-    #     response += (
-    #         "\nБольшой Брат одобряет вашу продуктивность.\n"
-    #         "Продолжайте в том же духе, товарищи."
-    #     )
-    # else:
-    #     response = (
-    #         "За последний час коммитов не было.\n"
-    #         "Большой Брат недоволен вашей бездеятельностью.\n"
-    #         "Помните: безделье — это преступление."
-    #     )
-    
     await message.answer(response)
 
 

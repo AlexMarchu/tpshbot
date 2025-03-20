@@ -14,9 +14,9 @@ headers = {
 
 async def get_commits_for_last_hour(owner: str, repo: str):
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-    since = (datetime.now() - timedelta(hours=1)).isoformat() + "Z"
+    since = (datetime.now() - timedelta(days=1000)).isoformat() + "Z"
     params = {
-        "since": since
+        "since": since,
     }
 
     async with aiohttp.ClientSession() as session:
@@ -34,6 +34,8 @@ async def get_team_commits(repos: list) -> dict:
         owner, name = repo["owner"], repo["name"]
         commits = await get_commits_for_last_hour(owner, name)
         if commits:
-            result[name] = len(commits)
+            result[name] = dict()
+            result[name]["count"] = len(commits)
+            result[name]["commits"] = list((commit["commit"]["author"]["name"], commit["commit"]["message"]) for commit in commits)
 
     return result
