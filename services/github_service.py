@@ -2,7 +2,7 @@ import aiohttp
 from dotenv import load_dotenv
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 load_dotenv()
 
@@ -14,9 +14,9 @@ headers = {
 
 async def get_commits_for_last_hour(owner: str, repo: str):
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-    since = (datetime.now() - timedelta(days=1000)).isoformat() + "Z"
+    since = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
     params = {
-        "since": since,
+        "since": since
     }
 
     async with aiohttp.ClientSession() as session:
@@ -34,8 +34,6 @@ async def get_team_commits(repos: list) -> dict:
         owner, name = repo["owner"], repo["name"]
         commits = await get_commits_for_last_hour(owner, name)
         if commits:
-            result[name] = dict()
-            result[name]["count"] = len(commits)
-            result[name]["commits"] = list((commit["commit"]["author"]["name"], commit["commit"]["message"]) for commit in commits)
+            result[name] = len(commits)
 
     return result
