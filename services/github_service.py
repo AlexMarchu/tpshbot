@@ -2,7 +2,7 @@ import aiohttp
 from dotenv import load_dotenv
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 load_dotenv()
 
@@ -14,7 +14,7 @@ headers = {
 
 async def get_commits_for_last_hour(owner: str, repo: str):
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-    since = (datetime.now() - timedelta(hours=1)).isoformat() + "Z"
+    since = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
     params = {
         "since": since
     }

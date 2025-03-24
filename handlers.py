@@ -26,7 +26,7 @@ async def send_stats(message: Message):
         else:
             timer = 3600
             REPOSITORIES = [
-                {"owner": "AlexMarchu", "name": "tpshbot"}
+                {"owner": "AlexMarchu", "name": "tpshbot"},
             ]
 
             team_commits = await get_team_commits(REPOSITORIES)
@@ -35,9 +35,9 @@ async def send_stats(message: Message):
                 for repo_name, count in team_commits.items():
                     response += f"• 📦 {repo_name}: {count} коммитов\n"
                 response += (
-                    "\nСтарший Брат одобряет вашу продуктивность.\n"
+                    "\n🟢 Старший Брат одобряет вашу продуктивность. 🟢\n"
                     "Продолжайте в том же духе, товарищи.\n"
-                    "Достойный труд будет вознагражден."
+                    "Достойный труд будет вознагражден. 🪖"
                 )
             else:
                 response = (
