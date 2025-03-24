@@ -8,7 +8,7 @@ from handlers import router
 
 load_dotenv()
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token=os.getenv("TELEBOT_TOKEN"))
 dp = Dispatcher()
 dp.include_router(router)
 
