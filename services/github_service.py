@@ -14,7 +14,7 @@ headers = {
 
 async def get_commits_for_last_hour(owner: str, repo: str):
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
-    since = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+    since = (datetime.now(timezone.utc) - timedelta(hours=8)).isoformat()
     params = {
         "since": since
     }

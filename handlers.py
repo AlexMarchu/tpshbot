@@ -2,6 +2,7 @@ from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.enums import ChatAction, ChatType
+import datetime
 
 import random
 import asyncio
@@ -10,6 +11,7 @@ from services.github_service import get_team_commits
 
 router = Router()
 timer = 20
+
 
 async def setup_chat_action(message: Message, action: ChatAction=ChatAction.TYPING, duration: float=0.8):
     await message.bot.send_chat_action(chat_id=message.chat.id, action=action)
@@ -20,18 +22,18 @@ async def send_stats(message: Message):
     global timer
 
     while True:
-        if timer > 0:
-            await asyncio.sleep(1)
-            timer -= 1
-        else:
-            timer = 3600
+        await asyncio.sleep(1)
+        if str(datetime.datetime.now().time())[:8] == '09:00:00':
             REPOSITORIES = [
-                {"owner": "AlexMarchu", "name": "tpshbot"},
+                {"owner": "mkulli", "name": "housing-filter-control-system"},
+                {"owner": "Polina-Shupikova", "name": "NPI"},
+                {"owner": "KelBro", "name": "ProjectTPSH"},
+                {"owner": "PaulKlifgt", "name": "QR-Museum"},
             ]
 
             team_commits = await get_team_commits(REPOSITORIES)
             if team_commits:
-                response = "<b>Отчет о продуктивности за последний час:</b>\n"
+                response = "<b>Отчет о продуктивности за сегодня:</b>\n"
                 for repo_name, count in team_commits.items():
                     response += f"• 📦 {repo_name}: {count} коммитов\n"
                 response += (
@@ -41,12 +43,12 @@ async def send_stats(message: Message):
                 )
             else:
                 response = (
-                    "🛑 За последний час коммитов не было. 🛑\n"
+                    "🛑 За сегодня коммитов не было. 🛑\n"
                     "<b>Старший Брат недоволен вашей бездеятельностью.</b>\n"
                     "Помните: безделье — это преступление.\n"
                     "🕵️‍♂️ Министерство любви уже в курсе."
                 )
-
+            await asyncio.sleep(1)
             await message.answer(response, parse_mode="HTML")
 
 
@@ -65,11 +67,17 @@ async def cmd_start(message: Message):
 
 @router.message(Command("stats"))
 async def cmd_stats(message: Message):
-    minutes_left = int(timer // 60)
-    seconds_left = int(timer % 60)
+    now_time = datetime.datetime.now()
+    wait_time = datetime.datetime.combine(now_time.date(), datetime.time(9, 0))
+
+    if now_time > wait_time:
+        wait_time += datetime.timedelta(days=1)
+
+    time_delta = wait_time - now_time
+
     response = (
         "⏳ <b>Осталось до следующего доклада:</b>\n"
-        f"🕒 {minutes_left} мин. {seconds_left} сек.\n\n"
+        f"🕒 {time_delta.seconds // 3600} ч. {time_delta.seconds % 3600 // 60} мин.\n\n"
         "📊 Текущая статистика будет обновлена автоматически."
     )
 
