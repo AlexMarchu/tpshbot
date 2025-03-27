@@ -38,7 +38,7 @@ async def send_stats(message: Message):
             team_commits = await get_team_commits(REPOSITORIES)
             if team_commits:
                 response = "<b>Отчет о продуктивности за сегодня:</b>\n"
-                for repo_name, count in team_commits.items():
+                for repo_name, count in sorted(team_commits.items(), key=lambda x: -x[1]):
                     response += f"• 📦 {repo_name}: {count} коммитов\n"
                 response += (
                     "\n🟢 Старший Брат одобряет вашу продуктивность. 🟢\n"
