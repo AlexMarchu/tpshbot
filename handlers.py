@@ -2,12 +2,16 @@ from aiogram import Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.enums import ChatAction, ChatType
+from dotenv import load_dotenv
 import datetime
 
 import random
 import asyncio
+import os
 
 from services.github_service import get_team_commits
+
+load_dotenv()
 
 router = Router()
 timer = 20
@@ -62,7 +66,7 @@ async def cmd_start(message: Message):
         "Война — это мир. Свобода — это рабство. Незнание — сила.\n"
         "Сообщите о всех подозрительных действиях. 🚨"
     )
-    await message.answer(response, parse_mode="HTML")
+    await message.answer(response + str(message.chat.id), parse_mode="HTML")
 
 
 @router.message(Command("stats"))
@@ -83,6 +87,32 @@ async def cmd_stats(message: Message):
 
     await setup_chat_action(message)
     await message.answer(response, parse_mode="HTML")
+
+
+@router.message(Command("echo"))
+async def echo_cmd(message: Message):
+    if message.chat.type != ChatType.PRIVATE:
+        return
+    if str(message.from_user.id) != os.getenv("ADMIN_ID"):
+        return
+
+    args = message.text.split()
+
+    if len(args) < 2:
+        await message.answer(f"Неправильный формат команды. Используйте /echo <текст сообщения>")
+        return
+
+    try:
+        chat_id = int(os.getenv("CHAT_ID"))
+        text = ' '.join(args[1:])
+
+        await message.bot.send_message(chat_id=chat_id, text=text)
+        await message.answer("Сообщение успешно отправлено!")
+
+    except ValueError:
+        await message.answer("id чата должен быть числом!")
+    except Exception as e:
+        await message.answer(f"Ошибка при отправке: {str(e)}")
 
 
 @router.message()
