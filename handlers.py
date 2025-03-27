@@ -66,7 +66,7 @@ async def cmd_start(message: Message):
         "Война — это мир. Свобода — это рабство. Незнание — сила.\n"
         "Сообщите о всех подозрительных действиях. 🚨"
     )
-    await message.answer(response + str(message.chat.id), parse_mode="HTML")
+    await message.answer(response, parse_mode="HTML")
 
 
 @router.message(Command("stats"))
