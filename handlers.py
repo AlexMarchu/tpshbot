@@ -14,7 +14,7 @@ from services.github_service import get_team_commits
 load_dotenv()
 
 router = Router()
-timer = 20
+flag = False
 
 
 async def setup_chat_action(message: Message, action: ChatAction=ChatAction.TYPING, duration: float=0.8):
@@ -23,7 +23,8 @@ async def setup_chat_action(message: Message, action: ChatAction=ChatAction.TYPI
 
 
 async def send_stats(message: Message):
-    global timer
+    global flag
+    flag = True
 
     while True:
         await asyncio.sleep(1)
@@ -58,8 +59,10 @@ async def send_stats(message: Message):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
+    global flag
     await setup_chat_action(message)
-    asyncio.create_task(send_stats(message))
+    if not flag:
+        asyncio.create_task(send_stats(message))
     response = (
         f"Добро пожаловать, товарищ {message.from_user.full_name}.\n"
         "<b>Старший Брат наблюдает за тобой.</b> 🪖\n"
