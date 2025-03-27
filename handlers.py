@@ -99,21 +99,28 @@ async def echo_cmd(message: Message):
     if str(message.from_user.id) != os.getenv("ADMIN_ID"):
         return
 
-    args = message.text.split()
-
-    if len(args) < 2:
-        await message.answer(f"Неправильный формат команды. Используйте /echo <текст сообщения>")
+    full_text = message.text or message.caption or ""
+    
+    command_length = len("/echo")
+    text_to_send = full_text[command_length:].strip()
+    
+    if not text_to_send:
+        await message.answer("Неправильный формат команды. Используйте /echo <текст сообщения>")
         return
 
     try:
         chat_id = int(os.getenv("CHAT_ID"))
-        text = ' '.join(args[1:])
-
-        await message.bot.send_message(chat_id=chat_id, text=text)
+        
+        await message.bot.send_message(
+            chat_id=chat_id,
+            text=text_to_send,
+            entities=message.entities[1:] if message.entities else None,
+            parse_mode=None
+        )
         await message.answer("Сообщение успешно отправлено!")
 
     except ValueError:
-        await message.answer("id чата должен быть числом!")
+        await message.answer("ID чата должен быть числом!")
     except Exception as e:
         await message.answer(f"Ошибка при отправке: {str(e)}")
 
